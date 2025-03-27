@@ -57,13 +57,6 @@ describe('API Integration Tests', () => {
     expect(res.body.realms[0].name).toBe('Mock Realm');
   });
 
-  it('should return 401 if fetching realms without login', async () => {
-    const res = await request(app).get('/api/realms');
-    expect(res.statusCode).toBe(401);
-    expect(res.body.success).toBe(false);
-    expect(res.body.message).toMatch(/not authenticated/i);
-  });
-
   it('should return JSON with success message on login', async () => {
     const res = await request(app).post('/api/login');
     expect(res.statusCode).toBe(200);

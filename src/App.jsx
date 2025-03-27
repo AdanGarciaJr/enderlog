@@ -2,10 +2,14 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { config} from './config.js';
 import './App.css'
+import { quests } from './quests.js'
 
 function App() {
     const [realms, setRealms] = useState([]);
     const [loggedIn, setLoggedIn] = useState(false);
+    const [generatedQuests, setGeneratedQuests] = useState([]);
+    const [completedQuests, setCompletedQuests] = useState([]);
+    const [showCompleted, setShowCompleted] = useState(false);
 
     // 🔹 Login to API (Triggers /api/login)
     const login = async () => {
@@ -26,10 +30,28 @@ function App() {
         if (data.success === false) {
             alert(data.message);
         } else {
-            setRealms(data);
-            console.log(data)
+            setRealms(data.realms);
+            console.log(data.realms)
         }
     };
+
+    const generateQuest = (category) => {
+        const categoryQuests = quests[category];
+        const randomQuest = categoryQuests[Math.floor(Math.random() * categoryQuests.length)];
+        setGeneratedQuests((prev) => [...prev, { text: randomQuest, category, completed: false }]);
+      };
+    
+      const toggleCompleted = (index) => {
+        const updated = [...generatedQuests];
+        updated[index].completed = !updated[index].completed;
+        setGeneratedQuests(updated);
+    
+        if (updated[index].completed) {
+          setCompletedQuests((prev) => [...prev, updated[index]]);
+        } else {
+          setCompletedQuests((prev) => prev.filter(q => q.text !== updated[index].text));
+        }
+      };
 
     useEffect(() => {
         fetchRealms();
@@ -66,6 +88,45 @@ function App() {
                         <p>No Realms found or not logged in.</p>
                     )}
                 </ul>
+                <div style={{ marginTop: '2rem' }}>
+          <h2>🎯 Generate Random Minecraft Quest</h2>
+          {Object.keys(quests).slice(0, 4).map((category) => (
+            <button key={category} onClick={() => generateQuest(category)} style={{ margin: '0.5rem' }}>
+              {category}
+            </button>
+          ))}
+
+          <ul style={{ marginTop: '1rem' }}>
+            {generatedQuests.map((quest, index) => (
+              <li key={index}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={quest.completed}
+                    onChange={() => toggleCompleted(index)}
+                  />
+                  [{quest.category}] {quest.text}
+                </label>
+              </li>
+            ))}
+          </ul>
+
+          <button onClick={() => setShowCompleted(!showCompleted)} style={{ marginTop: '1rem' }}>
+            {showCompleted ? 'Hide Completed Quests' : 'View Completed Quests'}
+          </button>
+
+          {showCompleted && (
+            <ul style={{ marginTop: '1rem' }}>
+              {completedQuests.length > 0 ? (
+                completedQuests.map((quest, index) => (
+                  <li key={index}>✅ [{quest.category}] {quest.text}</li>
+                ))
+              ) : (
+                <p>No quests completed yet.</p>
+              )}
+            </ul>
+          )}
+        </div>
             </div>
         </div>
     );

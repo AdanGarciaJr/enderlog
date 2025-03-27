@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { config} from './config.js';
+import './App.css'
 
 function App() {
     const [realms, setRealms] = useState([]);
@@ -33,29 +35,37 @@ function App() {
     }, []);
 
     return (
-        <div>
-            <h1>My Minecraft Realms</h1>
-            {!loggedIn && <button onClick={login}>🔑 Login to Minecraft</button>}
-            <ul>
-                {realms.length > 0 ? (
-                    realms.map(realm => (
-                        <li key={realm.id}>
-                            {realm.name} (Status: {realm.state})
-                            <ul>
-                                {Array.isArray(realm.players) && realm.players.length > 0 ? (
-                                    realm.players.map(player => (
-                                        <li key={player.uuid}>
-                                            {player.uuid}
-                                        </li>
-                                    ))
-                                ) : (<p>no players</p>)}
-                            </ul>
-                        </li>
-                    ))
-                ) : (
-                    <p>No Realms found or not logged in.</p>
-                )}
-            </ul>
+        <div id='content'>
+            <div id="header">
+                <h1 id='appName'>EnderLog</h1>
+            </div>
+            <div id='body'>
+                {!loggedIn && <button onClick={login}>🔑 Login to Minecraft</button>}
+                <h2>Realms List</h2>
+                <ul >
+                    {realms.length > 0 ? (
+                        realms.map(realm => (
+                            <li key={realm.id} id='realmsListItems'>
+                                <h3>{realm.name} (Status: {realm.state})</h3>
+                                <h4>Players:</h4>
+                                <ul>
+                                    {Array.isArray(realm.players) && realm.players.length > 0 ? (
+                                        realm.players.map(player => (
+                                            <li key={player.uuid}>
+                                                <h5 className='playerUsername'>{config[player.uuid]}</h5> 
+                                                <p>Player Permission: {player.permission}</p>
+                                                <p>Online: {player.online}</p>
+                                            </li>
+                                        ))
+                                    ) : (<p>no players</p>)}
+                                </ul>
+                            </li>
+                        ))
+                    ) : (
+                        <p>No Realms found or not logged in.</p>
+                    )}
+                </ul>
+            </div>
         </div>
     );
 }

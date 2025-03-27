@@ -41,9 +41,16 @@ app.get('/api/realms', async (req, res) => {
            const realmData = await api.getRealm(realms[i].id);
            realmsData.push(realmData)
          }
-        let username = getUsernameFromUUID(realmsData[1].players[1].uuid) 
+         let username = null;
+         if (realmsData[0]?.players?.[0]?.uuid) {
+           username = await getUsernameFromUUID(realmsData[0].players[0].uuid);
+           console.log(username);
+         }
         console.log(username)
-        res.json(realmsData);
+        res.json({
+          success: true,
+          realms: realmsData
+        });
     } catch (error) {
         console.error("❌ Error fetching realms:", error);
         res.status(500).json({ success: false, message: "❌ Failed to fetch realms." });
@@ -67,4 +74,8 @@ async function getUsernameFromUUID(uuid) {
  
 
 
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+  if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+  }
+  
+  export default app;
